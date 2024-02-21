@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Редактирование изображения</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <header>
+    <button id="openModal">Загрузить изображение</button>
+  </header>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal_header">
+        <h2 class="modal_txt">Редактирование изображения</h2>
+        <span class="close">&times;</span>
+      </div>
+      <div class="modal_form">
+        <input class="btn_upload" id="uploadFile" type="file">
+        <input id="inputUrl" type="text" placeholder="Введите URL изображения">
+        <button id="submitBtn">Загрузить</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="canvasWrapper">
+    <canvas id="imageCanvas"></canvas>
+  </div>
+
+  <div id="footer">
+    <div class="rgb_style">
+      <p class="footer_txt">RGB:</p> <span id="colorInfo"></span>
+      <div id="colorCircle"></div>
+    </div>
+    <div class="rgb_style">
+      <p class="footer_txt">Размер:</p>
+      <div id="sizeInfo"></div>
+    </div>
+    <div class="rgb_style">
+      <p class="footer_txt">Координаты:</p>
+      <div id="coordsInfo"></div>
+    </div>
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
