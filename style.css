@@ -30,7 +30,7 @@ header {
   border: 1px solid #ccc;
 }
 
-#openModal {
+.button {
   margin-right: 10px;
   padding: 10px;
   background-color: #f9f9f9;
@@ -38,28 +38,47 @@ header {
   border: 1px solid #ccc;
 }
 
-#canvasWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: 63px;
-  padding-bottom: 50px;
+.main{
+  height: calc(100vh - 63px);
+  background-color: #f9f9f9;
 }
 
-#footer {
+#canvasWrapper {
+  line-height: 100vh; 
+  text-align: center; 
+  height: 100vh; 
+  width: 100%;
+  background-color: #f9f9f9;
+}
+
+#imageCanvas{
+  vertical-align: middle; 
+  margin: auto;
+  max-width: 100%;
+  max-height: 100%; 
+}
+
+#footer_main{
   position: fixed;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content:end;
-  /* gap: 25px; */
   left: 0;
   bottom: 0;
   height: 50px;
   padding: 0 20px;
   background-color: #f9f9f9;
   border-top: 1px solid #ccc;
-  box-sizing: border-box;
+  box-sizing: border-box;  
+}
+
+#zoomSlider{
+  margin: 17px 0px;
+  float: right;
+}
+
+#footer {
+  display: flex;
+  align-items: center;
+  justify-content: start;
 }
 
 #footer div {
@@ -83,7 +102,7 @@ header {
   display: none;
 }
 
-.modal {
+.modal_style {
   display: none;
   position: fixed;
   left: 0;
@@ -93,6 +112,22 @@ header {
   height: 100%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.4);
+}
+
+dialog {
+  border: none;
+  padding: 0;
+  margin: 5% auto;
+}
+
+dialog::backdrop{
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.dialog-content {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border: 1px solid #ccc;
 }
 
 .modal_header{
@@ -159,18 +194,47 @@ header {
   border: 1px solid #ccc;   
 }
 
-#inputUrl{
+#inputUrl, #widthInput, #heightInput{
   padding: 10px;
   outline: none;
   background-color: #f9f9f9;
   border: 1px solid #ccc; 
 }
 
-#submitBtn{
+.input_determine{
+  gap: 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+#unitsSelect, #displayOptionSelect {
+  width: 150px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+  appearance: none;
+   -webkit-appearance: none;
+   -moz-appearance: none;
+   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="18px" height="18px"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+   background-repeat: no-repeat;
+   background-position: right center;
+}
+
+.button_show{
+  margin-top: 10px;
+}
+
+.label_deter{
+  margin-top: 5px;
+}
+
+#submitBtn, #showButton{
   padding: 10px;
   background-color: #f9f9f9;
   color: black;
-  border: 1px solid #ccc;  
+  border: 1px solid #ccc;
+  width: 100%; 
 }
 
 input[type="text"]::-webkit-input-placeholder {
@@ -180,3 +244,140 @@ input[type="text"]::-webkit-input-placeholder {
   color: black;
  }
 
+ input[type="number"]{
+  margin-top: 5px;
+ }
+
+ #zoomSlider {
+  width: 200px;
+  height: 10px;
+  background-color: white;
+  border: none;
+  -webkit-appearance: none;
+}
+
+#zoomSlider:hover {
+  cursor: pointer;
+}
+
+#zoomSlider:active {
+  cursor: grabbing;
+}
+
+#zoomSlider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 4px;
+  background-color: #ccc;
+}
+
+/* Стиль заполненного трека */
+#zoomSlider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Удаление стандартного внешнего вида ползунка */
+  width: 15px;
+  height: 15px;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc; 
+  border-radius: 50%;
+  margin-top: -4px;
+}
+
+.dialog_form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+[tooltip] {
+  position: relative; /* opinion 1 */
+}
+
+/* Applies to all tooltips */
+[tooltip]::before,
+[tooltip]::after {
+  text-transform: none; /* opinion 2 */
+  font-size: 8px; /* opinion 3 */
+  user-select: none;
+  pointer-events: none;
+  position: absolute;
+  display: none;
+  opacity: 0;
+}
+[tooltip]::before {
+  content: '';
+  border: 5px solid transparent; /* opinion 4 */
+  z-index: 1001; /* absurdity 1 */
+}
+[tooltip]::after {
+  content: attr(tooltip); /* magic! */
+  
+  /* most of the rest of this is opinion */
+  font-family: Helvetica, sans-serif;
+  text-align: center;
+  
+  /* 
+    Let the content set the size of the tooltips 
+    but this will also keep them from being obnoxious
+    */
+  width: 355px;
+  height: 35px;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 1ch 1.5ch;
+  border-radius: .3ch;
+  box-shadow: 0 1em 2em -.5em rgba(0, 0, 0, 0.35);
+  background: #333;
+  color: #fff;
+  z-index: 1000; /* absurdity 2 */
+}
+
+/* Make the tooltips respond to hover */
+[tooltip]:hover::before,
+[tooltip]:hover::after {
+  display: block;
+}
+
+/* don't show empty tooltips */
+[tooltip='']::before,
+[tooltip='']::after {
+  display: none !important;
+}
+
+/* FLOW: DOWN */
+[tooltip][flow^="down"]::before {
+  top: 100%;
+  border-top-width: 0;
+  border-bottom-color: #333;
+}
+[tooltip][flow^="down"]::after {
+  top: calc(100% + 5px);
+}
+[tooltip][flow^="down"]::before,
+[tooltip][flow^="down"]::after {
+  left: 50%;
+  transform: translate(-50%, .5em);
+}
+
+/* KEYFRAMES */
+@keyframes tooltips-vert {
+  to {
+    opacity: .9;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes tooltips-horz {
+  to {
+    opacity: .9;
+    transform: translate(0, -50%);
+  }
+}
+
+/* FX All The Things */ 
+[tooltip]:not([flow]):hover::before,
+[tooltip]:not([flow]):hover::after,
+[tooltip][flow^="down"]:hover::before,
+[tooltip][flow^="down"]:hover::after {
+  animation: tooltips-vert 300ms ease-out forwards;
+}

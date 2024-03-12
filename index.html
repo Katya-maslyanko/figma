@@ -6,10 +6,12 @@
 </head>
 <body>
   <header>
-    <button id="openModal">Загрузить изображение</button>
+    <button class="button" id="openModal">Загрузить изображение</button>
+    <button class="button" id="showDialog">Изменить размер</button>
+    <button class="button" id="saveButton">Сохранить</button>
   </header>
 
-  <div id="modal" class="modal">
+  <div id="modal" class="modal_style">
     <div class="modal-content">
       <div class="modal_header">
         <h2 class="modal_txt">Редактирование изображения</h2>
@@ -23,22 +25,70 @@
     </div>
   </div>
 
-  <div id="canvasWrapper">
-    <canvas id="imageCanvas"></canvas>
-  </div>
+  <dialog id="resizeDialog">
+    <div class="dialog-content">
+      <div class="modal_header">
+        <h2 class="modal_txt">Изменение размера изображения</h2>
+        <span class="close">&times;</span>
+      </div>
+      <div class="dialog_form">
+        <div>
+          <p>Исходный размер: <span id="originalSize"></span></p>
+          <p>Измененный размер: <span id="newSize"></span></p>
+        </div>
+        <div>
+          <label>Выберите единицы измерения:
+            <select id="unitsSelect">
+              <option value="px">Пиксели</option>
+              <option value="%">Проценты</option>
+            </select>
+          </label> 
+        </div>   
+        <div class="input_determine">
+          <label class="label_deter" for="widthInput">Ширина:</label>
+          <input id="widthInput" type="number">
+          <label class="label_deter" for="heightInput">Высота:</label>
+          <input id="heightInput" type="number">
+          <label class="checkbox-wrapper">
+            <input type="checkbox" id="lockAspectRatio">
+            <span class="checkbox-checkmark"></span>
+            Заблокировать пропорции
+          </label>          
+        </div>
+        <div tooltip="Алгоритм ближайшего соседа прост и эффективен. При изменении размера изображения он копирует ближайший пиксель из исходного изображения, чтобы заполнить новые позиции. Этот метод сохраняет детали изображения, но может вызывать появление эффекта 'лестницы'." flow="down">
+          <label for="displayOptionSelect">Выберите метод отображения:</label>
+          <select id="displayOptionSelect">
+            <option value="nearestNeighbor">Ближайший сосед</option>
+          </select>
+        </div>
+        <div class="button_show">
+          <button id="showButton">Отобразить</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+  
+  <main class="main">
+    <div id="canvasWrapper">
+      <canvas id="imageCanvas"></canvas>
+    </div> 
+  </main>
 
-  <div id="footer">
-    <div class="rgb_style">
-      <p class="footer_txt">RGB:</p> <span id="colorInfo"></span>
-      <div id="colorCircle"></div>
-    </div>
-    <div class="rgb_style">
-      <p class="footer_txt">Размер:</p>
-      <div id="sizeInfo"></div>
-    </div>
-    <div class="rgb_style">
-      <p class="footer_txt">Координаты:</p>
-      <div id="coordsInfo"></div>
+  <div id="footer_main">
+    <input type="range" id="zoomSlider" min="12" max="300" step="1" value="100">
+    <div id="footer">
+      <div class="rgb_style">
+        <p class="footer_txt">RGB:</p> <span id="colorInfo"></span>
+        <div id="colorCircle"></div>
+      </div>
+      <div class="rgb_style">
+        <p class="footer_txt">Размер:</p>
+        <div id="sizeInfo"></div>
+      </div>
+      <div class="rgb_style">
+        <p class="footer_txt">Координаты:</p>
+        <div id="coordsInfo"></div>
+      </div>
     </div>
   </div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
