@@ -131,19 +131,74 @@ function loadImageFromFile(file) {
 }
 
 function setCanvasSize(width, height) {
-  const scale = zoomSlider.value / 100;
-  canvas.width = width * scale;
-  canvas.height = height * scale;
+  // const scale = zoomSlider.value / 100;
+  canvas.width = width;
+  canvas.height = height;
+  showSize(width, height);
+}
+
+function updateImageSize() {
+  const width = parseInt(widthInput.value);
+  const height = parseInt(heightInput.value);
+
+  if (document.getElementById('displayOptionSelect').value === 'nearestNeighbor') {
+    const newImage = nearestNeighborInterpolation(image, width, height);
+    drawImage(newImage);
+    return;
+  }
+
+  if (width && height) {
+    let newWidth = width;
+    let newHeight = height;
+
+    if (document.getElementById('unitsSelect').value === 'px') {
+      if (document.getElementById('lockAspectRatio').checked) {
+        const aspectRatio = image.width / image.height;
+        if (width / height > aspectRatio) {
+          newHeight = Math.ceil(width / aspectRatio);
+        } else {
+          newWidth = Math.ceil(height * aspectRatio);
+        }
+      }
+    } else if (document.getElementById('unitsSelect').value === '%') {
+      if (document.getElementById('lockAspectRatio').checked) {
+        const aspectRatio = image.width / image.height;
+        if (width / height > aspectRatio) {
+          newHeight = Math.ceil((width / aspectRatio) * 100);
+        } else {
+          newWidth = Math.ceil((height * aspectRatio) * 100);
+        }
+      } else {
+        newWidth = Math.ceil((image.width * width) / 100);
+        newHeight = Math.ceil((image.height * height) / 100);
+      }
+    }
+    
+    image.width = newWidth;
+    image.height = newHeight;
+    setCanvasSize(newWidth, newHeight);
+    drawImage(image);
+    showSize(newWidth, newHeight);
+    document.getElementById('newSize').textContent = `${newWidth}px x ${newHeight}px`;
+  }
 }
 
 function drawImage(image) {
-  const scale = zoomSlider.value / 100; // Получение текущего значения ползунка
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // Очистка холста перед отрисовкой
-  ctx.drawImage(image, 0, 0, canvas.width * scale, canvas.height * scale);
+  const scale = zoomSlider.value / 100;
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing
+
+  const scaledWidth = image.width * scale;
+  const scaledHeight = image.height * scale;
+  const offsetX = (canvas.width - scaledWidth) / 2;
+  const offsetY = (canvas.height - scaledHeight) / 2;
+
+  ctx.drawImage(image, offsetX, offsetY, scaledWidth, scaledHeight);
 }
 
 function showSize(width, height) {
-  sizeInfo.textContent = `${width}px x ${height}px`;
+  const roundedWidth = width.toFixed(1);
+  const roundedHeight = height.toFixed(1);
+  sizeInfo.textContent = `${roundedWidth}px x ${roundedHeight}px`;
 }
 
 function showInfo(event) {
@@ -203,7 +258,12 @@ function updateImageSize() {
 
 // Обработчик события для кнопки "Отобразить"
 document.getElementById('showButton').addEventListener('click', () => {
-  updateImageSize();
+  const width = parseInt(widthInput.value);
+  const height = parseInt(heightInput.value);
+  
+  if (width && height) {
+    updateImageSize();
+  }  
   resizeDialog.close();
 });
 
