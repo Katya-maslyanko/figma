@@ -228,37 +228,25 @@ document.getElementById('showButton').addEventListener('click', () => {
     updateImageSize();
   }
 
-  if (selectedOption === 'nearestNeighbor') {
-    resizeImageNearestNeighbor(width,height);
-  } 
-
   resizeDialog.close();
 });
 
-function resizeImageNearestNeighbor(width,height) {
-  console.log("Its alive!")
+function nearestNeighborScaling(newWidth, newHeight) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  canvas.width = width;
-  canvas.height = height;
-  stCanv = document.getElementById("imageCanvas");
-  imageWidth = stCanv.width;
-  imageHeight = stCanv.height;
-  for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-          console.log("AAAAAAA")
-          const srcX = Math.round(x * (imageWidth / width));
-          const srcY = Math.round(y * (imageHeight / height));
+  canvas.width = newWidth;
+  canvas.height = newHeight;
+  for (let y = 0; y < newHeight; y++) {
+      for (let x = 0; x < newWidth; x++) {
+          const srcX = Math.round(x * (this.imageWidth / newWidth));
+          const srcY = Math.round(y * (this.imageHeight / newHeight));
           const pixel = this.getPixel(srcX, srcY);
           ctx.fillStyle = `rgb(${pixel.r}, ${pixel.g}, ${pixel.b})`;
           ctx.fillRect(x, y, 1, 1);
       }
   }
-
-  // // Обновляем холст с измененным изображением
-  // // setCanvasSize(width, height);
-  // ctx.drawImage(canvas, 0, 0, width, height);
-
+  let start_image = canvas.toDataURL('image/jpeg');
+  localStorage.setItem("start_image", start_image);
 }
 
 function getPixel(x, y) {
@@ -266,10 +254,11 @@ function getPixel(x, y) {
   const ctx = canvas.getContext('2d');
   canvas.width = 1;
   canvas.height = 1;
-  ctx.drawImage(image, x, y, 1, 1, 0, 0, 1, 1);
+  ctx.drawImage(this.image, x, y, 1, 1, 0, 0, 1, 1);
   const data = ctx.getImageData(0, 0, 1, 1).data;
   return { r: data[0], g: data[1], b: data[2] };
 }
+
 // Обработчик события для чекбокса "Заблокировать пропорции"
 document.getElementById('lockAspectRatio').addEventListener('change', () => {
   const lockAspectRatio = document.getElementById('lockAspectRatio');

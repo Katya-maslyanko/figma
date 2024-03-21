@@ -59,6 +59,7 @@ header {
   vertical-align: middle;
   object-fit: contain;
   margin: auto;
+  box-sizing: border-box;
 }
 
 #footer_main{
