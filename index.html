@@ -3,6 +3,7 @@
 <head>
   <title>Редактирование изображения</title>
   <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 <body>
   <header>
@@ -69,9 +70,65 @@
   </dialog>
   
   <main class="main">
+    <div id="sidebar">
+      <button id="handToolButton" class="toolButton active">
+        <i class="material-icons">pan_tool</i>
+        <div class="tooltip">
+          <span class="tooltip-content">Инструмент Рука</span>
+          <span class="tooltip-description">Этот инструмент позволяет вам перемещать объекты на холсте.</span>
+          <span class="tooltip-hotkey">Горячие клавиши (H)</span>
+        </div>
+      </button>
+      
+      <button id="pipetteToolButton" class="toolButton">
+        <i class="material-icons">colorize</i>
+        <div class="tooltip">
+          <span class="tooltip-content">Инструмент Пипетка</span>
+          <span class="tooltip-description">Этот инструмент позволяет выбирать цвет с холста.</span>
+          <span class="tooltip-hotkey">Горячие клавиши (P)</span>
+        </div>
+      </button>
+    </div>  
+    <div id="tooltip"></div>    
     <div id="canvasWrapper" class="canvas-container">
       <canvas id="imageCanvas"></canvas>
-    </div> 
+    </div>
+    <div id="info-panel">
+      <div class="modal_header">
+        <h2 class="modal_txt">Инструмент пипетка</h2>
+        <span class="close">&times;</span>
+      </div>
+      <div class="color-swatch-block">
+        <div class="color-swatch swatch1">
+          <span class="color-block color-block-1"></span>
+          <div class="color-info">
+            <ul class="color-spaces">
+              <li>RGB: <span class="color_span" id="rgb-value" tooltip="Красный, Зелёный, Синий. Диапазон значений: 0-255"></span></li>
+              <li>XYZ: <span class="color_span" id="xyz-value" tooltip="Координаты X, Y, Z в цветовом пространстве XYZ. Диапазон значений: различный"></span></li>
+              <li>LAB: <span class="color_span" id="lab-value" tooltip="Цветовое пространство Lab, представляющее яркость (L) и две цветовые компоненты a и b. Диапазон значений: различный"></span></li>
+            </ul>
+            <p class="coords">X: <span id="x-coord-1"></span> Y: <span id="y-coord-1"></span></p>
+          </div>
+        </div>
+        <div class="color-swatch swatch2">
+          <span class="color-block color-block-2"></span>
+          <div class="color-info">
+            <ul class="color-spaces">
+              <li>RGB: <span class="color_span" id="rgb-value-2" tooltip="Красный, Зелёный, Синий. Диапазон значений: 0-255"></span></li>
+              <li>XYZ: <span class="color_span" id="xyz-value-2" tooltip="Координаты X, Y, Z в цветовом пространстве XYZ. Диапазон значений: различный"></span></li>
+              <li>LAB: <span class="color_span" id="lab-value-2" tooltip="Цветовое пространство Lab, представляющее яркость (L) и две цветовые компоненты a и b. Диапазон значений: различный"></span></li>
+            </ul>
+            <p class="coords">X: <span id="x-coord-2"></span> Y: <span id="y-coord-2"></span></p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="contrast-info">
+          Контраст: <span id="contrast-value"></span>
+          <span id="contrast-status"></span>
+        </p>
+      </div>
+    </div>
   </main>
 
   <div id="footer_main">
