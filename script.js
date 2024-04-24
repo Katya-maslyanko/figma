@@ -527,7 +527,7 @@ function handleKeyDown(event) {
     canvas.style.transform = `translate(${canvasOffsetX}px, ${canvasOffsetY}px)`;
     
     // Прокручиваем контейнер холста, чтобы показать измененное положение изображения
-    const canvasContainer = document.getElementById('canvasContainer'); // Замените 'canvasContainer' на реальный ID вашего контейнера холста
+    const canvasContainer = document.getElementById('canvasWrapper');
     canvasContainer.scrollTop -= moveStep; // Прокрутка вверх
     canvasContainer.scrollLeft -= moveStep; // Прокрутка влево
     // И так далее, в зависимости от направления перемещения
