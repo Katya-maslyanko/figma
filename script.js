@@ -30,6 +30,8 @@ const colorBlock1 = document.querySelector('.color-block-1');
 const colorBlock2 = document.querySelector('.color-block-2');
 
 let image = new Image(); // Инициализируем переменную image
+let canvasHeight = 0;
+let canvasWidth = 0;
 
 // Обработчики событий
 openModalBtn.addEventListener('click', () => {
@@ -494,6 +496,9 @@ let canvasOffsetY = 0; // Вертикальное смещение изобра
 
 handToolButton.addEventListener('click', () => {
   toggleTool.call(handToolButton);
+  canvasHeight = document.getElementById('canvasWrapper').offsetHeight
+  canvasWidth = document.getElementById('canvasWrapper').offsetWidth
+  console.log(document.getElementById('canvasWrapper').offsetHeight)
   if (handToolButton.classList.contains('active')) {
     window.addEventListener('keydown', handleKeyDown);
   } else {
@@ -511,15 +516,29 @@ function handleKeyDown(event) {
     switch (event.key) {
       case 'ArrowUp':
         canvasOffsetY -= moveStep;
+        if (canvasOffsetY < -20){
+          canvasOffsetY = -20
+        }
         break;
       case 'ArrowDown':
         canvasOffsetY += moveStep;
+        if (canvasOffsetY > (canvasHeight - canvas.height) - 20){
+          canvasOffsetY = (canvasHeight - canvas.height) - 20
+        }
+        console.log(canvasHeight)
+        console.log(canvas.height)
         break;
       case 'ArrowLeft':
         canvasOffsetX -= moveStep;
+        if (canvasOffsetX < -430){
+          canvasOffsetX = -430
+        }
         break;
       case 'ArrowRight':
         canvasOffsetX += moveStep;
+        if (canvasOffsetX > (canvasWidth - canvas.width) - 440){
+          canvasOffsetX = (canvasWidth - canvas.width) - 440
+        }
         break;
     }
     
