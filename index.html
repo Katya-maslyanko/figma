@@ -99,25 +99,55 @@
         <span class="close">&times;</span>
       </div>
       <div class="color-swatch-block">
-        <div class="color-swatch swatch1">
+        <div class="color-swatch swatch">
           <span class="color-block color-block-1"></span>
           <div class="color-info">
-            <ul class="color-spaces">
-              <li>RGB: <span class="color_span" id="rgb-value" tooltip="Красный, Зелёный, Синий. Диапазон значений: 0-255"></span></li>
-              <li>XYZ: <span class="color_span" id="xyz-value" tooltip="Координаты X, Y, Z в цветовом пространстве XYZ. Диапазон значений: различный"></span></li>
-              <li>LAB: <span class="color_span" id="lab-value" tooltip="Цветовое пространство Lab, представляющее яркость (L) и две цветовые компоненты a и b. Диапазон значений: различный"></span></li>
-            </ul>
+            <table class="color-spaces">
+              <tr>
+                <th>RGB</th>
+                <td><span class="color_span" id="rgb-value-r" tooltip="Красный. Диапазон значений: 0-255"></span></td>
+                <td><span class="color_span" id="rgb-value-g" tooltip="Зелёный. Диапазон значений: 0-255"></span></td>
+                <td><span class="color_span" id="rgb-value-b" tooltip="Синий. Диапазон значений: 0-255"></span></td>
+              </tr>
+              <tr>
+                <th>XYZ</th>
+                <td><span class="color_span" id="xyz-value-x" tooltip="Координата X в цветовом пространстве XYZ. Диапазон значений: различный"></span></td>
+                <td><span class="color_span" id="xyz-value-y" tooltip="Координата Y в цветовом пространстве XYZ. Диапазон значений: различный"></span></td>
+                <td><span class="color_span" id="xyz-value-z" tooltip="Координата Z в цветовом пространстве XYZ. Диапазон значений: различный"></span></td>
+              </tr>
+              <tr>
+                <th>LAB</th>
+                <td><span class="color_span" id="lab-value-l" tooltip="Яркость (L) в цветовом пространстве Lab. Диапазон значений: различный"></span></td>
+                <td><span class="color_span" id="lab-value-a" tooltip="Цветовая компонента a в цветовом пространстве Lab. Диапазон значений: различный"></span></td>
+                <td><span class="color_span" id="lab-value-b" tooltip="Цветовая компонента b в цветовом пространстве Lab. Диапазон значений: различный"></span></td>
+              </tr>
+            </table>                      
             <p class="coords">X: <span id="x-coord-1"></span> Y: <span id="y-coord-1"></span></p>
           </div>
         </div>
-        <div class="color-swatch swatch2">
+        <div class="color-swatch swatch">
           <span class="color-block color-block-2" tooltip="Выбрать с помощью Shift"></span></span>
           <div class="color-info">
-            <ul class="color-spaces">
-              <li>RGB: <span class="color_span" id="rgb-value-2" tooltip="Красный, Зелёный, Синий. Диапазон значений: 0-255"></span></li>
-              <li>XYZ: <span class="color_span" id="xyz-value-2" tooltip="Координаты X, Y, Z в цветовом пространстве XYZ. Диапазон значений: различный"></span></li>
-              <li>LAB: <span class="color_span" id="lab-value-2" tooltip="Цветовое пространство Lab, представляющее яркость (L) и две цветовые компоненты a и b. Диапазон значений: различный"></span></li>
-            </ul>
+            <table class="color-spaces">
+              <tr>
+                <th>RGB</th>
+                <td><span class="color_span" id="rgb-value-r2" tooltip="Красный. Диапазон значений: 0-255"></span></td>
+                <td><span class="color_span" id="rgb-value-g2" tooltip="Зелёный. Диапазон значений: 0-255"></span></td>
+                <td><span class="color_span" id="rgb-value-b2" tooltip="Синий. Диапазон значений: 0-255"></span></td>
+              </tr>
+              <tr>
+                <th>XYZ</th>
+                <td><span class="color_span" id="xyz-value-x2" tooltip="Координата X в цветовом пространстве XYZ. Диапазон значений: различный"></span></td>
+                <td><span class="color_span" id="xyz-value-y2" tooltip="Координата Y в цветовом пространстве XYZ. Диапазон значений: различный"></span></td>
+                <td><span class="color_span" id="xyz-value-z2" tooltip="Координата Z в цветовом пространстве XYZ. Диапазон значений: различный"></span></td>
+              </tr>
+              <tr>
+                <th>LAB</th>
+                <td><span class="color_span" id="lab-value-l2" tooltip="Яркость (L) в цветовом пространстве Lab. Диапазон значений: различный"></span></td>
+                <td><span class="color_span" id="lab-value-a2" tooltip="Цветовая компонента a в цветовом пространстве Lab. Диапазон значений: различный"></span></td>
+                <td><span class="color_span" id="lab-value-b2" tooltip="Цветовая компонента b в цветовом пространстве Lab. Диапазон значений: различный"></span></td>
+              </tr>
+            </table>
             <p class="coords">X: <span id="x-coord-2"></span> Y: <span id="y-coord-2"></span></p>
           </div>
         </div>

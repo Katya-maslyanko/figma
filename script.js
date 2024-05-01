@@ -165,8 +165,8 @@ function drawImage(image) {
 
 //Отображает информацию о размере изображения на странице
 function showSize(width, height) {
-  const roundedWidth = width.toFixed(1);
-  const roundedHeight = height.toFixed(1);
+  const roundedWidth = Math.round(width);
+  const roundedHeight = Math.round(height);
   sizeInfo.textContent = `${roundedWidth}px x ${roundedHeight}px`;
 }
 
@@ -181,47 +181,39 @@ function showInfo(event) {
   coordsInfo.textContent = `X: ${event.offsetX}px, Y: ${event.offsetY}px`;
 }
 
+let newWidth, newHeight;
+
 // Функция для обновления размера изображения
 function updateImageSize() {
-  let width = parseInt(widthInput.value);
-  let height = parseInt(heightInput.value);
   let scale = zoomSlider.value / 100;
+  const originalAspectRatio = image.naturalWidth / image.naturalHeight;
+  const lockAspectRatio = document.getElementById('lockAspectRatio').checked;
 
   if (document.getElementById('unitsSelect').value === 'px') {
-    if (width && height) {
-      if (document.getElementById('lockAspectRatio').checked) {
-        const aspectRatio = image.width / image.height;
-        if (width / height > aspectRatio) {
-          height = Math.ceil(width / aspectRatio);
-        } else {
-          width = Math.ceil(height * aspectRatio);
-        }
+    if (newWidth && newHeight) {
+      if (lockAspectRatio) {
+        newHeight = Math.ceil(newWidth / originalAspectRatio);
       }
-      image.width = width;
-      image.height = height;
-      setCanvasSize(width * scale, height * scale);
+      image.width = newWidth;
+      image.height = newHeight;
+      setCanvasSize(newWidth * scale, newHeight * scale);
       drawImage(image);
-      showSize(width, height);
-      document.getElementById('newSize').textContent = `${width}px x ${height}px`;
+      showSize(newWidth, newHeight);
+      document.getElementById('newSize').textContent = `${newWidth}px x ${newHeight}px`;
     }
   } else if (document.getElementById('unitsSelect').value === '%') {
-    if (width && height && image.width && image.height) {
-      if (document.getElementById('lockAspectRatio').checked) {
-        const aspectRatio = image.width / image.height;
-        if (width / height > aspectRatio) {
-          height = Math.ceil(width / aspectRatio);
-        } else {
-          width = Math.ceil(height * aspectRatio);
-        }
+    if (newWidth && newHeight) {
+      if (lockAspectRatio) {
+        newHeight = Math.ceil(newWidth * (image.naturalHeight / image.naturalWidth));
       }
-      width = Math.ceil(image.width * (width / 100));
-      height = Math.ceil(image.height * (height / 100));
-      image.width = width;
-      image.height = height;
-      setCanvasSize(width * scale, height * scale);
+      newWidth = Math.ceil(image.naturalWidth * (newWidth / 100));
+      newHeight = Math.ceil(image.naturalHeight * (newHeight / 100));
+      image.width = newWidth;
+      image.height = newHeight;
+      setCanvasSize(newWidth * scale, newHeight * scale);
       drawImage(image);
-      showSize(width, height);
-      document.getElementById('newSize').textContent = `${width}px x ${height}px`;
+      showSize(newWidth, newHeight);
+      document.getElementById('newSize').textContent = `${newWidth}px x ${newHeight}px`;
     }
   }
 }
@@ -278,21 +270,38 @@ function getPixel(x, y) {
   const data = ctx.getImageData(0, 0, 1, 1).data;
   return { r: data[0], g: data[1], b: data[2] };
 }
+
+
+// Обработчик события для поля ввода ширины
+widthInput.addEventListener('input', () => {
+  newWidth = parseInt(widthInput.value);
+  const lockAspectRatio = document.getElementById('lockAspectRatio').checked;
+  const originalAspectRatio = image.naturalWidth / image.naturalHeight;
+
+  if (lockAspectRatio) {
+    newHeight = Math.ceil(newWidth * (image.naturalHeight / image.naturalWidth));
+    heightInput.value = newHeight;
+  }
+});
+
 // Обработчик события для чекбокса "Заблокировать пропорции"
 document.getElementById('lockAspectRatio').addEventListener('change', () => {
-  const lockAspectRatio = document.getElementById('lockAspectRatio');
-  widthInput.disabled = lockAspectRatio.checked;
-  heightInput.disabled = lockAspectRatio.checked;
+  const lockAspectRatio = document.getElementById('lockAspectRatio').checked;
+  const originalAspectRatio = image.naturalWidth / image.naturalHeight;
 
-  if (lockAspectRatio.checked) {
-    const aspectRatio = image.width / image.height;
+  if (lockAspectRatio) {
+    heightInput.disabled = true;
     if (widthInput.value !== '') {
-      heightInput.value = Math.ceil(parseInt(widthInput.value) / aspectRatio);
-    } else if (heightInput.value !== '') {
-      widthInput.value = Math.ceil(parseInt(heightInput.value) * aspectRatio);
+      newWidth = parseInt(widthInput.value);
+      newHeight = Math.ceil(newWidth * (image.naturalHeight / image.naturalWidth));
+      heightInput.value = newHeight;
     }
+  } else {
+    heightInput.disabled = false;
   }
-}); // По процентам lockAspectRatio
+});
+
+// По процентам lockAspectRatio
 
 // Обработчик события для кнопки "Сохранить"
 document.getElementById('saveButton').addEventListener('click', () => {
@@ -377,9 +386,22 @@ canvas.addEventListener('click', event => {
     previousPixelData = pixelData;
 
     colorBlock1.style.backgroundColor = `rgb(${rgb.join(',')})`;
-    document.getElementById('rgb-value').textContent = `${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]}`;
-    document.getElementById('xyz-value').textContent = `${xyz.X.toFixed(2)}, ${xyz.Y.toFixed(2)}, ${xyz.Z.toFixed(2)}`;
-    document.getElementById('lab-value').textContent = `${lab.L.toFixed(2)}, ${lab.a.toFixed(2)}, ${lab.b.toFixed(2)}`;
+    // document.getElementById('rgb-value').textContent = `${pixelData[0]} ${pixelData[1]} ${pixelData[2]}`;
+    document.getElementById('rgb-value-r').textContent = `${pixelData[0]}`;
+    document.getElementById('rgb-value-g').textContent = `${pixelData[1]}`;
+    document.getElementById('rgb-value-b').textContent = `${pixelData[2]}`;
+
+    // document.getElementById('xyz-value').textContent = `${xyz.X.toFixed(2)} ${xyz.Y.toFixed(2)} ${xyz.Z.toFixed(2)}`;
+
+    document.getElementById('xyz-value-x').textContent = `${xyz.X.toFixed(2)}`;
+    document.getElementById('xyz-value-y').textContent = `${xyz.Y.toFixed(2)}`;
+    document.getElementById('xyz-value-z').textContent = `${xyz.Z.toFixed(2)}`;
+
+    // document.getElementById('lab-value').textContent = `${lab.L.toFixed(2)} ${lab.a.toFixed(2)} ${lab.b.toFixed(2)}`;
+
+    document.getElementById('lab-value-l').textContent = `${lab.L.toFixed(2)}`;
+    document.getElementById('lab-value-a').textContent = `${lab.a.toFixed(2)}`;
+    document.getElementById('lab-value-b').textContent = `${lab.b.toFixed(2)}`;
 
     document.getElementById('x-coord-1').textContent = event.offsetX;
     document.getElementById('y-coord-1').textContent = event.offsetY;
@@ -400,21 +422,32 @@ canvas.addEventListener('click', event => {
 
     colorBlock2.style.backgroundColor = `rgb(${rgb2.join(',')})`;
 
-    document.getElementById('rgb-value-2').textContent = `${rgb2[0]}, ${rgb2[1]}, ${rgb2[2]}`;
-    document.getElementById('xyz-value-2').textContent = `${xyz2.X.toFixed(2)}, ${xyz2.Y.toFixed(2)}, ${xyz2.Z.toFixed(2)}`;
-    document.getElementById('lab-value-2').textContent = `${lab2.L.toFixed(2)}, ${lab2.a.toFixed(2)}, ${lab2.b.toFixed(2)}`;
+    // document.getElementById('rgb-value-2').textContent = `${rgb2[0]} ${rgb2[1]} ${rgb2[2]}`;
+    document.getElementById('rgb-value-r2').textContent = `${pixelData[0]}`;
+    document.getElementById('rgb-value-g2').textContent = `${pixelData[1]}`;
+    document.getElementById('rgb-value-b2').textContent = `${pixelData[2]}`;
+
+    // document.getElementById('xyz-value-2').textContent = `${xyz2.X.toFixed(2)} ${xyz2.Y.toFixed(2)} ${xyz2.Z.toFixed(2)}`;
+    document.getElementById('xyz-value-x2').textContent = `${xyz.X.toFixed(2)}`;
+    document.getElementById('xyz-value-y2').textContent = `${xyz.Y.toFixed(2)}`;
+    document.getElementById('xyz-value-z2').textContent = `${xyz.Z.toFixed(2)}`;
+
+    // document.getElementById('lab-value-2').textContent = `${lab2.L.toFixed(2)} ${lab2.a.toFixed(2)} ${lab2.b.toFixed(2)}`;
+    document.getElementById('lab-value-l2').textContent = `${lab.L.toFixed(2)}`;
+    document.getElementById('lab-value-a2').textContent = `${lab.a.toFixed(2)}`;
+    document.getElementById('lab-value-b2').textContent = `${lab.b.toFixed(2)}`;
 
     document.getElementById('x-coord-2').textContent = event.offsetX;
     document.getElementById('y-coord-2').textContent = event.offsetY;
 
-    const contrast = calculateContrast(rgb1, rgb2);
+    const contrast = calculateContrast(rgb1, rgb2).toFixed(1);
     document.getElementById('contrast-value').textContent = contrast;
     
     if (contrast < 4.5) {
       document.getElementById('contrast-status').textContent = 'Недостаточный контраст';
     } else {
       document.getElementById('contrast-status').textContent = '';
-    }
+    }    
   }
 });
 
