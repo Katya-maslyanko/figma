@@ -183,13 +183,38 @@ function showInfo(event) {
 
 let newWidth, newHeight;
 
+// Обработчик события для чекбокса "Заблокировать пропорции"
+document.getElementById('lockAspectRatio').addEventListener('change', () => {
+  const lockAspectRatio = document.getElementById('lockAspectRatio').checked;
+  const unitsSelect = document.getElementById('unitsSelect');
+  const widthInput = document.getElementById('widthInput');
+  const heightInput = document.getElementById('heightInput');
+
+  if (lockAspectRatio) {
+    heightInput.disabled = true;
+    if (unitsSelect.value === 'px') {
+      if (widthInput.value !== '') {
+        newWidth = parseInt(widthInput.value);
+        newHeight = Math.ceil(newWidth * (image.naturalHeight / image.naturalWidth));
+        heightInput.value = newHeight;
+      }
+    } else if (unitsSelect.value === '%') {
+      // При выборе процентов и нажатии на блокировку пропорций, ширина и высота становятся равными
+      widthInput.value = heightInput.value = Math.round(Math.max(parseInt(widthInput.value), parseInt(heightInput.value)));
+    }
+  } else {
+    heightInput.disabled = false;
+  }
+});
+
 // Функция для обновления размера изображения
 function updateImageSize() {
   let scale = zoomSlider.value / 100;
   const originalAspectRatio = image.naturalWidth / image.naturalHeight;
   const lockAspectRatio = document.getElementById('lockAspectRatio').checked;
+  const unitsSelect = document.getElementById('unitsSelect');
 
-  if (document.getElementById('unitsSelect').value === 'px') {
+  if (unitsSelect.value === 'px') {
     if (newWidth && newHeight) {
       if (lockAspectRatio) {
         newHeight = Math.ceil(newWidth / originalAspectRatio);
@@ -201,10 +226,10 @@ function updateImageSize() {
       showSize(newWidth, newHeight);
       document.getElementById('newSize').textContent = `${newWidth}px x ${newHeight}px`;
     }
-  } else if (document.getElementById('unitsSelect').value === '%') {
+  } else if (unitsSelect.value === '%') {
     if (newWidth && newHeight) {
       if (lockAspectRatio) {
-        newHeight = Math.ceil(newWidth * (image.naturalHeight / image.naturalWidth));
+        newHeight = newWidth; // При заблокированных пропорциях и выборе процентов, высота равна ширине
       }
       newWidth = Math.ceil(image.naturalWidth * (newWidth / 100));
       newHeight = Math.ceil(image.naturalHeight * (newHeight / 100));
@@ -213,10 +238,30 @@ function updateImageSize() {
       setCanvasSize(newWidth * scale, newHeight * scale);
       drawImage(image);
       showSize(newWidth, newHeight);
-      document.getElementById('newSize').textContent = `${newWidth}px x ${newHeight}px`;
+      document.getElementById('newSize').textContent = `${Math.round(newWidth / image.naturalWidth * 100)}% x ${Math.round(newHeight / image.naturalHeight * 100)}%`;
     }
   }
 }
+
+// Функция для преобразования пикселей в проценты
+function pixelsToPercent(pixels, originalSize) {
+  return Math.round((pixels / originalSize) * 100);
+}
+
+// Обработчик события изменения выбора единиц измерения
+document.getElementById('unitsSelect').addEventListener('change', () => {
+  const unitsSelect = document.getElementById('unitsSelect');
+  const widthInput = document.getElementById('widthInput');
+  const heightInput = document.getElementById('heightInput');
+
+  if (unitsSelect.value === 'px') {
+    widthInput.value = image.naturalWidth;
+    heightInput.value = image.naturalHeight;
+  } else if (unitsSelect.value === '%') {
+    widthInput.value = pixelsToPercent(image.naturalWidth, image.naturalWidth);
+    heightInput.value = pixelsToPercent(image.naturalHeight, image.naturalHeight);
+  }
+});
 
 // Обработчик события для кнопки "Показать"
 document.getElementById('showButton').addEventListener('click', () => {
@@ -284,20 +329,21 @@ widthInput.addEventListener('input', () => {
   }
 });
 
-// Обработчик события для чекбокса "Заблокировать пропорции"
-document.getElementById('lockAspectRatio').addEventListener('change', () => {
+// Обработчик события для поля ввода ширины
+widthInput.addEventListener('input', () => {
+  newWidth = parseInt(widthInput.value);
   const lockAspectRatio = document.getElementById('lockAspectRatio').checked;
   const originalAspectRatio = image.naturalWidth / image.naturalHeight;
+  const unitsSelect = document.getElementById('unitsSelect');
 
   if (lockAspectRatio) {
-    heightInput.disabled = true;
-    if (widthInput.value !== '') {
-      newWidth = parseInt(widthInput.value);
-      newHeight = Math.ceil(newWidth * (image.naturalHeight / image.naturalWidth));
+    if (unitsSelect.value === 'px') {
+      newHeight = Math.ceil(newWidth / originalAspectRatio);
+      heightInput.value = newHeight;
+    } else if (unitsSelect.value === '%') {
+      newHeight = newWidth;
       heightInput.value = newHeight;
     }
-  } else {
-    heightInput.disabled = false;
   }
 });
 
