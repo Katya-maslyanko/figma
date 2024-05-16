@@ -88,6 +88,20 @@
           <span class="tooltip-hotkey">Горячие клавиши (P)</span>
         </div>
       </button>
+      <button id="curvesToolButton" class="toolButton">
+        <i class="material-icons">landscape_2</i>
+        <div class="tooltip">
+          <span class="tooltip-content">Кривая</span>
+          <span class="tooltip-description">Кривая — это инструмент для тональной коррекции: яркости, контраста (в том числе локального), а также для работы с цветом.</span>
+        </div>
+      </button>
+      <button id="blurToolButton" class="toolButton">
+        <i class="material-icons">blur_on</i>
+        <div class="tooltip">
+          <span class="tooltip-content">Размытие</span>
+          <span class="tooltip-description">Кривая — это инструмент, который позволяет добавить эффект размытия на определенных участках изображения.</span>
+        </div>
+      </button>
     </div>  
     <div id="tooltip"></div>    
     <div id="canvasWrapper" class="canvas-container">
@@ -157,6 +171,98 @@
           Контраст: <span id="contrast-value"></span>
           <span id="contrast-status"></span>
         </p>
+      </div>
+    </div>
+      <!-- Модальное окно кривая -->
+    <div id="curvesModal" class="modal_style">
+      <div class="modal-content2">
+        <div class="modal_header">
+          <h2 class="modal_txt">Инструмент кривая</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="canvas_prev_curve">
+          <canvas id="curveCanvas"></canvas>
+          <canvas id="canvas_preview"></canvas>
+        </div>
+        <select id="channelSelect">
+          <option value="red">Красный канал</option>
+          <option value="green">Зеленый канал</option>
+          <option value="blue">Синий канал</option>
+        </select>        
+        <div class="input-group">
+          <div class="input-group">
+            <div class="input_group_point">
+              <div>
+                <label for="inPointX">Точка входа X:</label>
+                <input type="number" id="inPointX" placeholder="X" min="0" max="255">
+              </div>
+              <div>
+                <label for="inPointY">Точка входа Y:</label>
+                <input type="number" id="inPointY" placeholder="Y" min="0" max="255">
+              </div>
+            </div>
+            <div class="input_group_point point_2">
+              <div>
+                <label for="outPointX">Точка выхода X:</label>
+                <input type="number" id="outPointX" placeholder="X" min="0" max="255">
+              </div>
+              <div>
+                <label for="outPointY">Точка выхода Y:</label>
+                <input type="number" id="outPointY" placeholder="Y" min="0" max="255">
+              </div>
+            </div>
+          </div>    
+        </div>
+        <div class="button-group">
+          <div class="preview-button-container">
+            <button id="previewButton">Превью</button>
+          </div>
+          <div class="apply-reset-container">
+            <button id="applyButton">Применить</button>
+            <span class="spacer"></span>
+            <button id="resetButton">Сбросить</button>
+          </div>
+        </div>  
+      </div>
+    </div>
+    <div id="blurModal" class="modal_style">
+      <div class="modal-content2">
+        <div class="modal_header">
+          <h2 class="modal_txt">Инструмент размытие</h2>
+          <span class="close">&times;</span>
+        </div>
+          <p>Пользовательское размытие <input type="checkbox" id="userBlur"></p>
+          <div id="matrixContainer">
+            <table>
+              <tbody>
+                <tr>
+                  <td><input type="number" id="matrix00" value="0"></td>
+                  <td><input type="number" id="matrix01" value="0"></td>
+                  <td><input type="number" id="matrix02" value="0"></td>
+                </tr>
+                <tr>
+                  <td><input type="number" id="matrix10" value="0"></td>
+                  <td><input type="number" id="matrix11" value="1"></td>
+                  <td><input type="number" id="matrix12" value="0"></td>
+                </tr>
+                <tr>
+                  <td><input type="number" id="matrix20" value="0"></td>
+                  <td><input type="number" id="matrix21" value="0"></td>
+                  <td><input type="number" id="matrix22" value="0"></td>
+                </tr>
+              </tbody>
+          </div>
+          <div id="blurOptions">
+            <p>Гаусс <input type="checkbox" id="gaussBlur"></p>
+            <p>Синее размытие <input type="checkbox" id="contrastBlur"></p>
+          </div>
+          <div>
+            <canvas id="previewCanvas"></canvas>
+            <canvas id="mainCanvas"></canvas>
+          </div>
+          <p>Предпросмотр <input type="checkbox" id="previewCheckbox"></p>
+          <button id="applyBtn">Применить</button>    
+        </div>
       </div>
     </div>
   </main>

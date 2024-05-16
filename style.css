@@ -199,7 +199,7 @@ dialog::backdrop{
   border: 1px solid #ccc;   
 }
 
-#inputUrl, #widthInput, #heightInput{
+#inputUrl, #widthInput, #heightInput, #outPointX, #outPointY, #inPointX, #inPointY{
   padding: 10px;
   outline: none;
   background-color: #f9f9f9;
@@ -212,7 +212,7 @@ dialog::backdrop{
   flex-direction: column;
 }
 
-#unitsSelect, #displayOptionSelect {
+#unitsSelect, #displayOptionSelect, #channelSelect {
   width: 150px;
   border: 1px solid #ccc;
   padding: 10px;
@@ -234,7 +234,7 @@ dialog::backdrop{
   margin-top: 5px;
 }
 
-#submitBtn, #showButton{
+#submitBtn, #showButton, #previewButton, #applyButton, #resetButton, #applyBtn{
   padding: 10px;
   background-color: #f9f9f9;
   color: black;
@@ -571,4 +571,81 @@ ul {
 
 .color_span{
   font-size: 12px;
+}
+
+.input-group {
+  margin-top: 10px;
+  display: flex;
+}
+
+.input-group input {
+  margin: 0 5px;
+  padding: 5px;
+}
+
+.input_group_point{
+  display: flex;
+  flex-direction: column;
+  gap: 15px; 
+}
+
+.point_2{
+  margin-left: 20px;
+}
+
+.point_3{
+  margin-left: 20px;
+  margin-top: 5px;
+}
+
+.button-group {
+  margin-top: 20px;
+}
+
+.preview-button-container {
+  margin-bottom: 10px;
+}
+
+.apply-reset-container {
+  display: flex;
+  justify-content: center;
+  padding-block-end: 10px;
+}
+
+.apply-reset-container .button {
+  margin: 0 10px;
+}
+
+.spacer {
+  width: 15px;
+  height: 1px; /* Установите высоту, чтобы она занимала место */
+}
+
+.modal-content2 {
+  background-color: #f9f9f9;
+  margin: 5% auto;
+  padding: 10px;
+  border: 1px solid #ccc;
+  width: 30%;
+}
+
+#curveCanvas{
+  /* width: 100%; */
+  text-align: center;
+}
+
+.canvas_prev_curve{
+  margin-top: 15px;
+  display: flex;
+  flex-direction: row;
+  text-align: start;
+}
+
+#canvas_preview{
+  width: 48%;
+  height: 48%;
+}
+
+#channelSelect{
+  margin-top: 10px;
 }

@@ -104,7 +104,15 @@ function loadImageFromUrl(imgUrl) {
     widthInput.value = image.width;
     heightInput.value = image.height;
     zoomSlider.value = 100; // Установка начального значения ползунка при загрузке изображения
-    drawImage(image);
+      // Инициализация originalImageData
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = image.width;
+      tempCanvas.height = image.height;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.drawImage(image, 0, 0);
+      originalImageData = tempCtx.getImageData(0, 0, image.width, image.height);
+
+      drawImage(image);
   };
 
   image.onerror = () => {
@@ -127,6 +135,14 @@ function loadImageFromFile(file) {
       widthInput.value = image.width;
       heightInput.value = image.height;
       zoomSlider.value = 100; // Установка начального значения ползунка при загрузке изображения
+      // Инициализация originalImageData
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = image.width;
+      tempCanvas.height = image.height;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.drawImage(image, 0, 0);
+      originalImageData = tempCtx.getImageData(0, 0, image.width, image.height);
+
       drawImage(image);
     };
 
@@ -631,3 +647,316 @@ function handleKeyDown(event) {
     // И так далее, в зависимости от направления перемещения
   }
 }
+
+//Инструмент кривая
+const curveButton = document.getElementById('curvesToolButton');
+const modal_curve = document.getElementById('curvesModal');
+const ctx_curve = curveCanvas.getContext('2d');
+const inPointXInput = document.getElementById('inPointX');
+const inPointYInput = document.getElementById('inPointY');
+const outPointXInput = document.getElementById('outPointX');
+const outPointYInput = document.getElementById('outPointY');
+const previewButton = document.getElementById('previewButton');
+const applyButton = document.getElementById('applyButton');
+const resetButton = document.getElementById('resetButton');
+const channelSelect = document.getElementById('channelSelect');
+const canvas_preview = document.getElementById('canvas_preview');
+const ctx_preview = canvas_preview.getContext('2d');
+
+curveCanvas.width = 255; // Установите желаемую ширину канваса
+curveCanvas.height = 255; // Установите желаемую высоту канваса
+// const previewWidth = 200;
+// const previewHeight = 200;
+// canvas_preview.width = previewWidth;
+// canvas_preview.height = previewHeight;
+
+
+// Обработчики событий
+curveButton.addEventListener('click', () => {
+  modal_curve.style.display = 'block';
+});
+
+Array.from(closeModalBtns).forEach(btn => {
+  btn.addEventListener('click', () => {
+    modal_curve.style.display = 'none';
+  });
+});
+
+window.addEventListener('click', event => {
+  if (event.target == modal_curve) {
+    modal_curve.style.display = 'none';
+  }
+});
+
+channelSelect.addEventListener('change', () => {
+  const selectedChannel = channelSelect.value;
+  drawGraphs(selectedChannel);
+  buildHistogram(selectedChannel);
+});
+
+let originalImageData;
+let adjustedImageData;
+
+// Функция для рисования кривой между точками входа и выхода
+function drawCurve(channel = 'red') {
+  const inX = parseInt(inPointXInput.value, 10);
+  const inY = parseInt(inPointYInput.value, 10);
+  const outX = parseInt(outPointXInput.value, 10);
+  const outY = parseInt(outPointYInput.value, 10);
+
+  let curveColor;
+  switch (channel) {
+    case 'red':
+      curveColor = 'rgb(255, 0, 0)';
+      break;
+    case 'green':
+      curveColor = 'rgb(0, 255, 0)';
+      break;
+    case 'blue':
+      curveColor = 'rgb(0, 0, 255)';
+      break;
+    default:
+      curveColor = 'white';
+  }
+
+  ctx_curve.strokeStyle = curveColor;
+  ctx_curve.beginPath();
+  ctx_curve.moveTo(inX, curveCanvas.height - inY);
+  ctx_curve.lineTo(outX, curveCanvas.height - outY);
+  ctx_curve.stroke();
+}
+
+// Функция для рисования осей X и Y с подписями
+function drawAxes() {
+  ctx_curve.beginPath();
+  ctx_curve.moveTo(0, curveCanvas.height);
+  ctx_curve.lineTo(curveCanvas.width, curveCanvas.height);
+  ctx_curve.moveTo(0, curveCanvas.height);
+  ctx_curve.lineTo(0, 0);
+  ctx_curve.strokeStyle = "black";
+  ctx_curve.stroke();
+
+  ctx_curve.font = "14px Arial";
+  ctx_curve.fillStyle = "black";
+  ctx_curve.fillText("0", 10, curveCanvas.height - 10);
+  ctx_curve.fillText("255", 10, 20);
+  ctx_curve.fillText("255", curveCanvas.width - 30, curveCanvas.height - 10);
+}
+
+// Инициализация осей при загрузке
+drawAxes();
+const initialChannel = channelSelect.value;
+drawGraphs(initialChannel);
+
+// Функция для рисования кривой с дополнительными элементами
+function drawGraphs(channel = 'red') {
+  const inX = parseInt(inPointXInput.value);
+  const inY = curveCanvas.height - parseInt(inPointYInput.value);
+  const outX = parseInt(outPointXInput.value);
+  const outY = curveCanvas.height - parseInt(outPointYInput.value);
+
+  ctx_curve.clearRect(0, 0, curveCanvas.width, curveCanvas.height);
+  drawAxes(); // Перерисовка осей X и Y
+
+  const curveColors = {
+    red: 'rgb(255, 0, 0)',
+    green: 'rgb(0, 255, 0)',
+    blue: 'rgb(0, 0, 255)'
+  };
+
+  // Рисование кривых для всех цветовых каналов
+  for (const [color, colorValue] of Object.entries(curveColors)) {
+    ctx_curve.beginPath();
+    ctx_curve.moveTo(inX, inY);
+    ctx_curve.lineTo(outX, outY);
+    ctx_curve.strokeStyle = colorValue;
+    ctx_curve.stroke();
+  }
+
+  ctx_curve.beginPath();
+  ctx_curve.arc(inX, inY, 5, 0, 2 * Math.PI);
+  ctx_curve.fillStyle = "black";
+  ctx_curve.fill();
+  ctx_curve.beginPath();
+  ctx_curve.arc(outX, outY, 5, 0, 2 * Math.PI);
+  ctx_curve.fill();
+
+  ctx_curve.beginPath();
+  ctx_curve.moveTo(0, inY);
+  ctx_curve.lineTo(inX, inY);
+  ctx_curve.strokeStyle = "black";
+  ctx_curve.stroke();
+
+  ctx_curve.beginPath();
+  ctx_curve.moveTo(outX, outY);
+  ctx_curve.lineTo(curveCanvas.width, outY);
+  ctx_curve.stroke();
+
+  // Рисование линии под углом 45 градусов с цветом, зависящим от выбранного канала
+  ctx_curve.beginPath();
+  ctx_curve.moveTo(0, curveCanvas.height);
+  ctx_curve.lineTo(curveCanvas.width, 0);
+  ctx_curve.strokeStyle = curveColors[channel];
+  ctx_curve.stroke();
+
+  // Добавление подписей "in" и "out"
+  ctx_curve.font = "16px Arial";
+  ctx_curve.fillStyle = "white";
+  ctx_curve.fillText("in", inX + 10, inY - 10);
+  ctx_curve.fillText("out", outX + 10, outY - 10);
+}
+
+function calculateNewPixelValues(channel = 'red') {
+  const newPixelValues = new Uint8ClampedArray(originalImageData.data);
+
+  const inX = parseInt(inPointXInput.value, 10);
+  const inY = parseInt(inPointYInput.value, 10);
+  const outX = parseInt(outPointXInput.value, 10);
+  const outY = parseInt(outPointYInput.value, 10);
+
+  // Гарантируем, что inX < outX
+  // Проверяем условие inX < outX
+  if (inX >= outX) {
+    alert('Ошибка: значение x1 должно быть меньше значения x2.');
+    return newPixelValues; // Выходим из функции, не производя дальнейших вычислений
+  }
+
+  for (let i = 0; i < originalImageData.data.length; i += 4) {
+    let newValue;
+
+    const value = originalImageData.data[i + (channel === 'red' ? 0 : channel === 'green' ? 1 : 2)];
+
+    if (value <= inX) {
+      newValue = inY;
+    } else if (value >= outX) {
+      newValue = outY;
+    } else {
+      const slope = (outY - inY) / (outX - inX);
+      const intercept = inY - slope * inX;
+      newValue = Math.round(slope * value + intercept);
+    }
+
+    newPixelValues[i + (channel === 'red' ? 0 : channel === 'green' ? 1 : 2)] = newValue;
+  }
+
+  return newPixelValues;
+}
+
+function previewChanges(channel = 'red') {
+  const newPixelValues = calculateNewPixelValues(channel);
+  const adjustedImageData = new ImageData(newPixelValues, image.width, image.height);
+
+  // Рисуем график
+  drawGraphs(channel);
+
+  // Получаем ширину и высоту канваса preview
+  const previewWidth = canvas_preview.width;
+  const previewHeight = canvas_preview.height;
+
+  // Очищаем канвас
+  ctx_preview.clearRect(0, 0, previewWidth, previewHeight);
+
+  // Создаем временный канвас
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = image.width;
+  tempCanvas.height = image.height;
+  const tempCtx = tempCanvas.getContext('2d');
+
+  // Отрисовываем adjustedImageData на временном канвасе
+  tempCtx.putImageData(adjustedImageData, 0, 0);
+
+  // Получаем соотношения сторон исходного изображения и канваса preview
+  const imageAspectRatio = image.width / image.height;
+  const canvasAspectRatio = previewWidth / previewHeight;
+
+  let drawWidth, drawHeight;
+
+  // Вычисляем ширину и высоту для drawImage, чтобы избежать искажения
+  if (imageAspectRatio > canvasAspectRatio) {
+    drawWidth = previewWidth;
+    drawHeight = previewWidth / imageAspectRatio;
+  } else {
+    drawHeight = previewHeight;
+    drawWidth = previewHeight * imageAspectRatio;
+  }
+
+  // Отображаем превью измененного изображения без искажения
+  ctx_preview.drawImage(
+    tempCanvas,
+    (previewWidth - drawWidth) / 2, // Смещение по X для центрирования
+    (previewHeight - drawHeight) / 2, // Смещение по Y для центрирования
+    drawWidth,
+    drawHeight
+  );
+}
+
+// Функция для применения рассчитанных значений к исходному изображению
+function applyChanges(channel = 'red') {
+  const newPixelValues = calculateNewPixelValues(channel);
+  const adjustedImageData = new ImageData(newPixelValues, image.width, image.height);
+
+  // Сначала рисуем график
+  drawGraphs(channel);
+
+  // Затем обновляем изображение на холсте предварительного просмотра
+  ctx_preview.putImageData(adjustedImageData, 0, 0);
+}
+
+// Функция для сброса изменений
+function resetChanges() {
+  if (originalImageData) {
+    ctx.putImageData(originalImageData, 0, 0);
+  }
+}
+
+// Обработчики событий для кнопок
+previewButton.addEventListener('click', () => {
+  const selectedChannel = channelSelect.value;
+  // buildHistogram(selectedChannel);
+  previewChanges(selectedChannel);
+});
+
+applyButton.addEventListener('click', () => {
+  const selectedChannel = channelSelect.value;
+  const newPixelValues = calculateNewPixelValues(selectedChannel);
+  const adjustedImageData = new ImageData(newPixelValues, image.width, image.height);
+  ctx.putImageData(adjustedImageData, 0, 0);
+
+  modal_curve.style.display = 'none';
+});
+
+resetButton.addEventListener('click', () => {
+  resetChanges();
+  modal_curve.style.display = 'none';
+});
+
+//Инструмент размытие
+const blurButton = document.getElementById('blurToolButton');
+const modal_blur = document.getElementById('blurModal');
+const userBlurCheckbox = document.getElementById('userBlur');
+const matrixContainer = document.getElementById('matrixContainer');
+const gaussBlurCheckbox = document.getElementById('gaussBlur');
+const contrastBlurCheckbox = document.getElementById('contrastBlur');
+const previewCanvas = document.getElementById('previewCanvas');
+const mainCanvas = document.getElementById('mainCanvas');
+const previewCheckbox = document.getElementById('previewCheckbox');
+const applyBtn = document.getElementById('applyBtn');
+
+
+// Обработчики событий
+blurButton.addEventListener('click', () => {
+  modal_blur.style.display = 'block';
+});
+
+Array.from(closeModalBtns).forEach(btn => {
+  btn.addEventListener('click', () => {
+    modal_blur.style.display = 'none';
+  });
+});
+
+window.addEventListener('click', event => {
+  if (event.target == modal_blur) {
+    modal_blur.style.display = 'none';
+  }
+});
+
