@@ -4,6 +4,8 @@
   <title>Редактирование изображения</title>
   <link rel="stylesheet" type="text/css" href="style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <!-- Подключение библиотеки AnyChart -->
+  <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-base.min.js"></script>
 </head>
 <body>
   <header>
@@ -96,7 +98,7 @@
         </div>
       </button>
       <button id="blurToolButton" class="toolButton">
-        <i class="material-icons">blur_on</i>
+        <i class="material-icons">tune</i>
         <div class="tooltip">
           <span class="tooltip-content">Размытие</span>
           <span class="tooltip-description">Кривая — это инструмент, который позволяет добавить эффект размытия на определенных участках изображения.</span>
@@ -174,96 +176,93 @@
       </div>
     </div>
       <!-- Модальное окно кривая -->
-    <div id="curvesModal" class="modal_style">
-      <div class="modal-content2">
+    <div id="curvesModal">
         <div class="modal_header">
           <h2 class="modal_txt">Инструмент кривая</h2>
           <span class="close">&times;</span>
         </div>
-        <div class="canvas_prev_curve">
-          <canvas id="curveCanvas"></canvas>
-          <canvas id="canvas_preview"></canvas>
-        </div>
-        <select id="channelSelect">
-          <option value="red">Красный канал</option>
-          <option value="green">Зеленый канал</option>
-          <option value="blue">Синий канал</option>
-        </select>        
+        <div id="chart_container"></div>     
         <div class="input-group">
           <div class="input-group">
             <div class="input_group_point">
-              <div>
-                <label for="inPointX">Точка входа X:</label>
-                <input type="number" id="inPointX" placeholder="X" min="0" max="255">
+              <div class="input_group_point_div">
+                <label for="inPointX">In</label>
+                <input type="number" id="first_in_coord_input" value="0" min="0" max="255">
               </div>
-              <div>
-                <label for="inPointY">Точка входа Y:</label>
-                <input type="number" id="inPointY" placeholder="Y" min="0" max="255">
+              <div class="input_group_point_div">
+                <label for="inPointY">Out</label>
+                <input type="number" id="first_out_coord_input" value="0" min="0" max="255">
               </div>
             </div>
             <div class="input_group_point point_2">
-              <div>
-                <label for="outPointX">Точка выхода X:</label>
-                <input type="number" id="outPointX" placeholder="X" min="0" max="255">
+              <div class="input_group_point_div">
+                <label for="outPointX">In</label>
+                <input type="number" id="second_in_coord_input" value="255" min="0" max="255">
               </div>
-              <div>
-                <label for="outPointY">Точка выхода Y:</label>
-                <input type="number" id="outPointY" placeholder="Y" min="0" max="255">
+              <div class="input_group_point_div">
+                <label for="outPointY">Out</label>
+                <input type="number" id="second_out_coord_input" value="255" min="0" max="255">
               </div>
             </div>
           </div>    
         </div>
         <div class="button-group">
           <div class="preview-button-container">
-            <button id="previewButton">Превью</button>
+              <input type="checkbox" id="color-correction-checkbox">
+              <label for="color-correction-checkbox">Превью</label>         
           </div>
           <div class="apply-reset-container">
-            <button id="applyButton">Применить</button>
+            <button id="submit_color_correction_button">Применить</button>
             <span class="spacer"></span>
-            <button id="resetButton">Сбросить</button>
+            <button id="reset_color_correction_button">Сбросить</button>
           </div>
         </div>  
-      </div>
     </div>
-    <div id="blurModal" class="modal_style">
-      <div class="modal-content2">
+    <div id="blurModal">
         <div class="modal_header">
           <h2 class="modal_txt">Инструмент размытие</h2>
           <span class="close">&times;</span>
         </div>
-          <p>Пользовательское размытие <input type="checkbox" id="userBlur"></p>
           <div id="matrixContainer">
-            <table>
-              <tbody>
-                <tr>
-                  <td><input type="number" id="matrix00" value="0"></td>
-                  <td><input type="number" id="matrix01" value="0"></td>
-                  <td><input type="number" id="matrix02" value="0"></td>
-                </tr>
-                <tr>
-                  <td><input type="number" id="matrix10" value="0"></td>
-                  <td><input type="number" id="matrix11" value="1"></td>
-                  <td><input type="number" id="matrix12" value="0"></td>
-                </tr>
-                <tr>
-                  <td><input type="number" id="matrix20" value="0"></td>
-                  <td><input type="number" id="matrix21" value="0"></td>
-                  <td><input type="number" id="matrix22" value="0"></td>
-                </tr>
-              </tbody>
+            <div class="matrix">
+              <input type="number" class="form-control filter_offcanvas_input" id="kernel11" value="0">
+              <input type="number" class="form-control filter_offcanvas_input" id="kernel12" value="0">
+              <input type="number" class="form-control filter_offcanvas_input" id="kernel13" value="0">
+              <br/>
+              <input type="number" class="form-control filter_offcanvas_input" id="kernel21" value="0">
+              <input type="number" class="form-control filter_offcanvas_input" id="kernel22" value="1">
+              <input type="number" class="form-control filter_offcanvas_input" id="kernel23" value="0">
+              <br/>
+              <input type="number" class="form-control filter_offcanvas_input" id="kernel31" value="0">
+              <input type="number" class="form-control filter_offcanvas_input" id="kernel32" value="0">
+              <input type="number" class="form-control filter_offcanvas_input" id="kernel33" value="0">
+            </div>            
           </div>
-          <div id="blurOptions">
-            <p>Гаусс <input type="checkbox" id="gaussBlur"></p>
-            <p>Синее размытие <input type="checkbox" id="contrastBlur"></p>
+          <div class="blur_select">
+            Размытие:
+            <select id="filter_select">
+              <option value="0 0 0 0 1 0 0 0 0 1 0" selected>Тождественное отображение</option>
+              <option value="0 -1 0 -1 5 -1 0 -1 0 1 0">Повышение резкости</option>
+              <option value="1 2 1 2 4 2 1 2 1 16 0">Фильтр Гаусса</option>
+              <option value="1 1 1 1 1 1 1 1 1 9 0">Прямоугольное размытие</option>
+            </select>
+            <div class="blur_select">
+              Div: <input id="div" class="form-control" type="text" value="1" />
+              &nbsp;Offset: <input class="form-control" id="offset" type="text" value="0" />
+            </div>            
           </div>
-          <div>
-            <canvas id="previewCanvas"></canvas>
-            <canvas id="mainCanvas"></canvas>
+          <div class="button-group">
+            <div class="preview-button-container">
+                <input type="checkbox" value="" id="filter_offcanvas_checkbox">
+                <label for="filter_offcanvas_checkbox">Превью</label>         
+            </div>
+            <div class="apply-reset-container">
+              <button id="apply-filter">Применить</button>
+              <span class="spacer"></span>
+              <button id="reset_filter_offcanvas_button">Сбросить</button>
+            </div>
           </div>
-          <p>Предпросмотр <input type="checkbox" id="previewCheckbox"></p>
-          <button id="applyBtn">Применить</button>    
-        </div>
-      </div>
+    </div>
     </div>
   </main>
 

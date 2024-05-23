@@ -199,11 +199,27 @@ dialog::backdrop{
   border: 1px solid #ccc;   
 }
 
-#inputUrl, #widthInput, #heightInput, #outPointX, #outPointY, #inPointX, #inPointY{
+#inputUrl, #widthInput, #heightInput, #first_in_coord_input, #first_out_coord_input, #second_in_coord_input, #second_out_coord_input{
   padding: 10px;
   outline: none;
   background-color: #f9f9f9;
   border: 1px solid #ccc; 
+}
+
+.form-control{
+  padding: 10px;
+  outline: none;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc; 
+}
+
+.blur_select{
+  margin-top: 20px;
+}
+
+#first_in_coord_input, #first_out_coord_input, #second_in_coord_input, #second_out_coord_input {
+  width: 110px;
+  margin: 0px 20px;
 }
 
 .input_determine{
@@ -212,7 +228,7 @@ dialog::backdrop{
   flex-direction: column;
 }
 
-#unitsSelect, #displayOptionSelect, #channelSelect {
+#unitsSelect, #displayOptionSelect, #channelSelect, #filter_select {
   width: 150px;
   border: 1px solid #ccc;
   padding: 10px;
@@ -226,6 +242,14 @@ dialog::backdrop{
    background-position: right center;
 }
 
+.matrixContainer{
+  margin-top: 15px;
+}
+
+#filter_select{
+  width: 250px;
+}
+
 .button_show{
   margin-top: 10px;
 }
@@ -234,7 +258,7 @@ dialog::backdrop{
   margin-top: 5px;
 }
 
-#submitBtn, #showButton, #previewButton, #applyButton, #resetButton, #applyBtn{
+#submitBtn, #showButton, #previewButton, #applyButton, #resetButton, #applyBtn, #submit_color_correction_button, #reset_color_correction_button, #apply-filter, #reset_filter_offcanvas_button{
   padding: 10px;
   background-color: #f9f9f9;
   color: black;
@@ -251,6 +275,10 @@ input[type="text"]::-webkit-input-placeholder {
 
  input[type="number"]{
   margin-top: 5px;
+ }
+
+ #inputUrl{
+  width: 96%;
  }
 
  #zoomSlider {
@@ -475,7 +503,7 @@ display: block;
   margin: 5px 0 0 0;
 }
 
-#info-panel {
+#info-panel, #curvesModal, #blurModal {
   position: fixed;
   display: none;
   top: 63px;
@@ -576,6 +604,8 @@ ul {
 .input-group {
   margin-top: 10px;
   display: flex;
+  flex-direction: column;
+  margin-left: 5px;
 }
 
 .input-group input {
@@ -585,12 +615,11 @@ ul {
 
 .input_group_point{
   display: flex;
-  flex-direction: column;
   gap: 15px; 
 }
 
 .point_2{
-  margin-left: 20px;
+  margin-top: 20px;
 }
 
 .point_3{
@@ -629,7 +658,7 @@ ul {
   width: 30%;
 }
 
-#curveCanvas{
+#color_correction{
   /* width: 100%; */
   text-align: center;
 }
@@ -648,4 +677,26 @@ ul {
 
 #channelSelect{
   margin-top: 10px;
+}
+
+.matrix input {
+  width: 50px;
+}
+input[type="text"] {
+  width: 30px;
+}
+
+input[type="range"] {
+  vertical-align: middle;
+}
+
+.input_group_point_div{
+  display: flex;
+  text-align: center;
+  align-items: center;
+}
+
+#chart_container {
+  height: 380px;
+  width: 380px;
 }
