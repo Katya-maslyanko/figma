@@ -22,6 +22,7 @@ const originalSize = document.getElementById('originalSize');
 const widthInput = document.getElementById('widthInput');
 const heightInput = document.getElementById('heightInput');
 const displayOptionSelect = document.getElementById('displayOptionSelect');
+const AppB = document.getElementById('apply-filter');
 const toolButtons = document.querySelectorAll('.toolButton');
 
 const infoPanel = document.getElementById('info-panel');
@@ -666,16 +667,40 @@ const previewButton = document.getElementById('color-correction-checkbox');
 const submitButton = document.getElementById('submit_color_correction_button');
 const resetButton = document.getElementById('reset_color_correction_button');
 const colorCorrectionInputs = document.getElementsByClassName('color_correction_input');
+let redMass = new Array(256).fill(0);
+let greenMass = new Array(256).fill(0);
+let blueMass = new Array(256).fill(0);
+let chart;
+let chartCTX;
 
 const canvasHelper = document.createElement('canvas');
 canvasHelper.width = canvas.width;
 canvasHelper.height = canvas.height;
 
-// Обработчики событий
 curveButton.addEventListener('click', () => {
+  console.log("curveButton Отработал1")
   modal_curve.style.display = 'block';
-
+  const imageCanvas = document.getElementById('imageCanvas');
+  const imageContext = imageCanvas.getContext('2d');
+  const imageData = imageContext.getImageData(0, 0, imageCanvas.width, imageCanvas.height).data;
+  chart = document.getElementById('chart')
+  chartCTX = chart.getContext('2d');
+  calcRGB(imageData)
+  drawChart(imageData)
+  console.log("curveButton Отработал")
 });
+
+function calcRGB(imageData) {
+  redMass = new Array(256).fill(0);
+  greenMass = new Array(256).fill(0);
+  blueMass = new Array(256).fill(0);
+  for (let i = 0; i < imageData.length; i += 4) {
+    redMass[imageData[i]]++;
+    greenMass[imageData[i + 1]]++;
+    blueMass[imageData[i + 2]]++;
+    
+  }
+}
 
 Array.from(closeModalBtns).forEach(btn => {
   btn.addEventListener('click', () => {
@@ -684,7 +709,7 @@ Array.from(closeModalBtns).forEach(btn => {
 });
 
 // Создание экземпляра объекта AnyChart
-let chart;
+
 let correctedImageData;
 let bufferData;
 let isPreviewChecked = false; 
@@ -695,116 +720,93 @@ let originalSecondOutCoord = 255;
 let imageData;
 
 // Функция для отрисовки гистограмм и линии цветовой коррекции
-function drawChart(imageData) {
-  console.log(imageData)
-  const chartContainer = document.getElementById('chart_container');
-  chartContainer.innerHTML = '';
+function drawChart() {
+  let firstIn = parseInt(firstInCoordInput.value);
+  let firstOut = chart.height - parseInt(firstOutCoordInput.value);
+  let secondIn = parseInt(secondInCoordInput.value);
+  let secondOut = chart.height - parseInt(secondOutCoordInput.value);
 
-  // Вычисление гистограмм для R, G, B
-  const R = Array(256).fill(0);
-  const G = Array(256).fill(0);
-  const B = Array(256).fill(0);
+  chartCTX.clearRect(0, 0, chart.width, chart.height);
 
-  for (let i = 0; i < imageData.length; i += 4) {
-    R[imageData[i]]++;
-    G[imageData[i + 1]]++;
-    B[imageData[i + 2]]++;
+  const barWidth = chart.width / 256;
+
+  chartCTX.fillStyle = 'red';
+  for (let i = 0; i < redMass.length; i++) {
+    const barHeight = (redMass[i] / Math.max(...redMass)) * chart.height;
+    chartCTX.fillRect(i * barWidth, chart.height - barHeight, barWidth, barHeight);
   }
 
-  const maxVal = Math.max(...R, ...G, ...B);
-  const maxValRatio = maxVal / 256;
-  const chartData = [];
-
-  for (let i = 0; i < 256; i++) {
-    chartData[i] = [i, R[i] / maxValRatio, G[i] / maxValRatio, B[i] / maxValRatio];
+  chartCTX.fillStyle = 'green';
+  for (let i = 0; i < greenMass.length; i++) {
+    const barHeight = (greenMass[i] / Math.max(...greenMass)) * chart.height;
+    chartCTX.fillRect(i * barWidth, chart.height - barHeight, barWidth, barHeight);
   }
 
-  // Создание графика
-  const chart = anychart.line();
+  chartCTX.fillStyle = 'blue';
+  for (let i = 0; i < blueMass.length; i++) {
+    const barHeight = (blueMass[i] / Math.max(...blueMass)) * chart.height;
+    chartCTX.fillRect(i * barWidth, chart.height - barHeight, barWidth, barHeight);
+  }
 
-  // Настройка осей
-  chart.xAxis().labels().format(function() {
-    return this.value === 0 || this.value === 255 ? this.value : '';
-  });
-  chart.xAxis().ticks().stroke('none');
-  chart.xAxis().title('In');
-  chart.yAxis().title('Out');
-  chart.yScale().ticks().set([0, 255]);
-  chart.yScale().maximum(255);
+  chartCTX.strokeStyle = 'black';
+  chartCTX.lineWidth = 2;
+  chartCTX.beginPath();
+  chartCTX.moveTo(0, firstOut);
+  chartCTX.lineTo(firstIn, firstOut);
+  chartCTX.lineTo(secondIn, secondOut);
+  chartCTX.lineTo(chart.width, secondOut);
+  chartCTX.stroke();
 
-  // Отключение подсказок
-  chart.tooltip().enabled(false);
+  chartCTX.fillStyle = 'black';
+  chartCTX.beginPath();
+  chartCTX.arc(firstIn, firstOut, 5, 0, 2 * Math.PI);
+  chartCTX.fill();
 
-  // Создание набора данных
-  const dataSet = anychart.data.set(chartData);
-
-  // Создание серий для R, G, B
-  const seriesDataR = dataSet.mapAs({ 'x': 0, 'value': 1 });
-  const seriesDataG = dataSet.mapAs({ 'x': 0, 'value': 2 });
-  const seriesDataB = dataSet.mapAs({ 'x': 0, 'value': 3 });
-
-  const seriesConfiguration = function(series, name) {
-    series.name(name);
-    series.hovered().markers().enabled(false);
-  };
-
-  let series;
-
-  series = chart.line(seriesDataR);
-  series.stroke('red');
-  seriesConfiguration(series, 'R');
-
-  series = chart.line(seriesDataG);
-  series.stroke('green');
-  seriesConfiguration(series, 'G');
-
-  series = chart.line(seriesDataB);
-  series.stroke('blue');
-  seriesConfiguration(series, 'B');
-
-  // Отрисовка графика
-  chart.container('chart_container').draw();
-
-  // Отрисовка линии цветовой коррекции
-  drawCorrectionLine(chart);  
+  chartCTX.beginPath();
+  chartCTX.arc(secondIn, secondOut, 5, 0, 2 * Math.PI);
+  chartCTX.fill();
 }
 
   // Обработчик событий для кнопки "Сброс"
   resetButton.onclick = () => {
-    drawCorrectionLine(chart, true);
     previewButton.checked = isPreviewChecked;
     firstInCoordInput.value = '0';
     firstOutCoordInput.value = '0';
     secondInCoordInput.value = '255';
     secondOutCoordInput.value = '255';
     previewButton.checked = false;
+    drawChart()
     console.log("Вот мы и попали туда куда не надо")
     applyColorCorrection(imageData);
   };
   console.log("draw chart")
   previewButton.addEventListener('change', () => {
     isPreviewChecked = previewButton.checked;
+    console.log("Попали в превью для кривой")
     const imageCanvas = document.getElementById('imageCanvas');
     const imageContext = imageCanvas.getContext('2d');
-    const imageData = imageContext.getImageData(0, 0, imageCanvas.width, imageCanvas.height).data;
+    let imageData = imageContext.getImageData(0, 0, imageCanvas.width, imageCanvas.height).data;
     if (isPreviewChecked) {
-      bufferData = imageData;
+      bufferData = imageData.slice()
+      console.log("Это буфферизированная дата",imageData)
       applyColorCorrection(bufferData, true);
       // const newImageData = new ImageData(new Uint8ClampedArray(correctedImageData), canvas.width, canvas.height);
       // ctx.putImageData(newImageData, 0, 0);
     } else {
-      const newImageData = new ImageData(new Uint8ClampedArray(imageData.slice()), canvas.width, canvas.height);
+      console.log("bufferData = imageData.slice()")
+      const newImageData = new ImageData(new Uint8ClampedArray(bufferData.slice()), canvas.width, canvas.height);
       ctx.putImageData(newImageData, 0, 0);
-      drawChart(imageData, correctedImageData);
+      // drawChart(imageData, correctedImageData);
     }
   });
   
   [firstInCoordInput, firstOutCoordInput, secondInCoordInput, secondOutCoordInput].forEach(input => {
     input.onchange = () => {
       if (checkCoordinates()) {
-        drawCorrectionLine(chart);
+        drawChart()
         if (isPreviewChecked) {
-          applyColorCorrection(imageData, true);
+          console.log("Аэплай произошел")
+          applyColorCorrection(bufferData, true);
           const newImageData = new ImageData(correctedImageData, canvas.width, canvas.height);
           ctx.putImageData(newImageData, 0, 0);
         }
@@ -817,101 +819,31 @@ function drawChart(imageData) {
     const imageContext = imageCanvas.getContext('2d');
     const imageData = imageContext.getImageData(0, 0, imageCanvas.width, imageCanvas.height).data;
     if (isPreviewChecked){
-      // console.log(bufferData)
-      const newImageData2 = new ImageData(new Uint8ClampedArray(imageData.slice()), canvas.width, canvas.height);
-      ctx.putImageData(newImageData2, 0, 0);
-      drawChart(imageData, correctedImageData);
-      applyColorCorrection(bufferData, false);
-      let data = canvas.toDataURL();
-    image.src = data;
-    image.onload = () => {
-      ctx.drawImage(image, 0, 0);
-    };
-    modal_curve.style.display = 'none';
-    firstInCoordInput.value = '0';
-    firstOutCoordInput.value = '0';
-    secondInCoordInput.value = '255';
-    secondOutCoordInput.value = '255';
-    drawCorrectionLine(chart, true);
-  
-    // Обновляем холст с исправленным imageData
-    const newImageData = new ImageData(correctedImageData, canvas.width, canvas.height);
-    ctx.putImageData(newImageData, 0, 0);
+      correctedImageData = imageData;
+      const newImageData = new ImageData(correctedImageData, canvas.width, canvas.height);
+      ctx.putImageData(newImageData, 0, 0);
+      firstInCoordInput.value = '0';
+      firstOutCoordInput.value = '0';
+      secondInCoordInput.value = '255';
+      secondOutCoordInput.value = '255';
+      previewButton.checked = false;
+      modal_curve.style.display = 'none';
+      // const newImageData = new ImageData(new Uint8ClampedArray(bufferData.slice()), canvas.width, canvas.height);
+      // ctx.putImageData(newImageData, 0, 0);
       return
-    }
-  
-    applyColorCorrection(imageData, false);
-    // Сохранить исправленное изображение
-    let data = canvas.toDataURL();
-    image.src = data;
-    image.onload = () => {
-      ctx.drawImage(image, 0, 0);
     };
+    applyColorCorrection(imageData, false);
     modal_curve.style.display = 'none';
     firstInCoordInput.value = '0';
     firstOutCoordInput.value = '0';
     secondInCoordInput.value = '255';
     secondOutCoordInput.value = '255';
-    drawCorrectionLine(chart, true);
-  
+    drawChart()
     // Обновляем холст с исправленным imageData
     const newImageData = new ImageData(correctedImageData, canvas.width, canvas.height);
     ctx.putImageData(newImageData, 0, 0);
   });
 let chartData = [];
-
-// Функция для отрисовки линии цветовой коррекции
-function drawCorrectionLine(chart, isDefault) {
-  if (!chart) return;
-
-  if (chart.getSeriesCount() > 3) {
-    chart.removeSeriesAt(chart.getSeriesCount() - 1);
-  }
-
-  let firstIn = parseInt(firstInCoordInput.value);
-  let firstOut = parseInt(firstOutCoordInput.value);
-  let secondIn = parseInt(secondInCoordInput.value);
-  let secondOut = parseInt(secondOutCoordInput.value);
-
-  if (isDefault) {
-    firstIn = 0;
-    firstOut = 0;
-    secondIn = 255;
-    secondOut = 255;
-  }
-
-  const calculateLinePoint = (x1, y1, x2, y2, x) => {
-    const k = (y2 - y1) / (x2 - x1);
-    const b = y1 - k * x1;
-    return k * x + b;
-  };
-
-  for (let x = 0; x < firstIn; x++) {
-    chartData[x] = [x, firstOut];
-  }
-
-  for (let x = firstIn; x < secondIn; x++) {
-    const y = calculateLinePoint(firstIn, firstOut, secondIn, secondOut, x);
-    chartData[x] = [x, y];
-  }
-
-  for (let x = secondIn; x < 256; x++) {
-    chartData[x] = [x, secondOut];
-  }
-
-  const dataSet = anychart.data.set(chartData);
-  const seriesData = dataSet.mapAs({ 'x': 0, 'value': 1 });
-
-  const series = chart.line(seriesData);
-  series.stroke('black', 2);
-  series.hovered().markers().enabled(false);
-
-  chart.xAxis().labels().format(function() {
-    return this.value === 0 || this.value === 255 || this.value === firstIn || this.value === secondIn ? this.value : '';
-  });
-
-  chart.container('chart_container').draw();
-}
 
 let isPreview = true;
 
@@ -1038,13 +970,17 @@ function initFilterApplication() {
 
 let bufferData1;
 
+AppB.addEventListener('click', () => {
+  applyFilter()
+})
+
 // Обработчик события на checkbox
 filterPreviewCheckbox.addEventListener('change', () => {
     const imageCanvas = document.getElementById('imageCanvas');
     const imageContext = imageCanvas.getContext('2d');
     const imageDat = imageContext.getImageData(0, 0, imageCanvas.width, imageCanvas.height);
   if (filterPreviewCheckbox.checked) {
-    bufferData1 = imageDat.data
+    bufferData1 = imageDat.data.slice()
     console.log(bufferData1)
     // Применение фильтра
     const kernel = getKernelFromInput();
@@ -1076,12 +1012,16 @@ function resetPreview() {
 
 // Функция для применения фильтра
 function applyFilter() {
+  console.log("Попали в применение фильтра")
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const kernel = getKernelFromInput();
   let div = parseFloat(document.getElementById('div').value) || 1;
   const offset = parseInt(document.getElementById('offset').value) || 0;
-
-  dta = processImage(imageData, kernel, div, offset);
+  dta = imageData.data;
+  if (!filterPreviewCheckbox.checked){
+    dta = processImage(imageData, kernel, div, offset);
+  }
+  filterPreviewCheckbox.checked = false;
   const newImageData2 = new ImageData(new Uint8ClampedArray(dta.slice()), canvas.width, canvas.height);
   ctx.putImageData(newImageData2, 0, 0);
   modal_blur.style.display = 'none';
@@ -1110,6 +1050,8 @@ function getKernelFromInput() {
     parseFloat(document.getElementById('kernel33').value)
   ];
 }
+
+
 
 // Применяем фильтр на основе матрицы свертки
 function processImage(imageData1, kernel, div, offset) {

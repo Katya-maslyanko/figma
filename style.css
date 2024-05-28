@@ -63,6 +63,11 @@ header {
   box-sizing: border-box;
 }
 
+#chart{
+  margin-left: 63px;
+  margin-top: 20px;
+}
+
 #footer_main{
   position: fixed;
   width: 100%;
