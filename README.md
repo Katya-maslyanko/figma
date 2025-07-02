@@ -1,3 +1,3 @@
 # Сайт для обработки изображения
-https://stellular-queijadas-67b1de.netlify.app/
+ttps://stellular-queijadas.netlify.app/
 Использованные программы: HTML, CSS, JS
